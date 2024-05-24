@@ -111,9 +111,13 @@ class Processor
     {
         $params = array();
         foreach ($envMap as $param => $env) {
-            $value = getenv($env);
-            if ($value) {
-                $params[$param] = Inline::parse($value);
+            if (is_array($env)) {
+                $params[$param] = $this->getEnvValues($env);
+            } else {
+                $value = getenv($env);
+                if ($value) {
+                    $params[$param] = Inline::parse($value);
+                }
             }
         }
 
@@ -141,7 +145,7 @@ class Processor
     {
         // Simply use the expectedParams value as default for the missing params.
         if (!$this->io->isInteractive()) {
-            return array_replace($expectedParams, $actualParams);
+            return array_replace_recursive($expectedParams, $actualParams);
         }
 
         $isStarted = false;
